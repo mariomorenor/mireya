@@ -195,6 +195,8 @@ return [
     'additional_js' => [
         'Datatables/js/datatables.js',
         'Datatables/js/responsive.min.js',
+        'Vue/vue.js',
+        'Vue/invoice.js',
     ],
 
     'googlemaps' => [
