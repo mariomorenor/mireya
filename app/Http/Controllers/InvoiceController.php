@@ -2,84 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use Illuminate\Http\Request;
+use TCG\Voyager\Http\Controllers\VoyagerBaseController;
 
-class InvoiceController extends Controller
+class InvoiceController extends VoyagerBaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+
+    function create(Request $request)
     {
-        //
+        $clients = Client::all();
+        return view("invoices.create")->with(["clients" => $clients]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    function store(Request $request)
     {
-        //
+
+        $invoice = new Invoice();
+        $invoice->date = $request->date;
+        $invoice->client_id = $request->client_id;
+        $invoice->total = $request->total;
+
+        $invoice->save();
+
+        $details = [];
+
+        for ($i = 0; $i < count($request->products); $i++) {
+            array_push($details, new InvoiceDetail([
+                "product_id" => $request->products[$i],
+                "quantity" => $request->units[$i],
+                "pounds" => $request->pounds[$i],
+                "price" => $request->prices[$i],
+                "discount" => $request->discounts[$i],
+            ]));
+        }
+        $invoice->invoice_detail()->saveMany($details);
+
+        return redirect()->route("voyager.invoices.index");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    function edit(Request $request, $id)
     {
-        //
+        $invoice = Invoice::find($id);
+        $clients = Client::all();
+        return view("invoices.edit")->with(["invoice" => $invoice, "clients" => $clients]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Invoice  $invoice
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Invoice $invoice)
-    {
-        //
-    }
+    function update(Request $request, $id) {
+        
+        $invoice = Invoice::find($id);
+        $invoice->date = $request->date;
+        $invoice->client_id = $request->client_id;
+        $invoice->total = $request->total;
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Invoice  $invoice
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Invoice $invoice)
-    {
-        //
-    }
+        $invoice->save();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Invoice  $invoice
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Invoice $invoice)
-    {
-        //
-    }
+        $invoice->invoice_detail()->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Invoice  $invoice
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Invoice $invoice)
-    {
-        //
+        $details = [];
+
+        for ($i = 0; $i < count($request->products); $i++) {
+            array_push($details, new InvoiceDetail([
+                "product_id" => $request->products[$i],
+                "quantity" => $request->units[$i],
+                "pounds" => $request->pounds[$i],
+                "price" => $request->prices[$i],
+                "discount" => $request->discounts[$i],
+            ]));
+        }
+        $invoice->invoice_detail()->saveMany($details);
+
+        return redirect()->route("voyager.invoices.index");
     }
 }

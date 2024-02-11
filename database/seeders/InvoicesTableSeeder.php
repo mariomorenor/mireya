@@ -28,6 +28,7 @@ class InvoicesTableSeeder extends Seeder
                 'model_name'            => 'App\\Models\\Invoice',
                 'generate_permissions'  => 1,
                 'description'           => '',
+                'controller'            => 'App\\Http\\Controllers\\InvoiceController'
             ])->save();
         }
 
@@ -131,6 +132,21 @@ class InvoicesTableSeeder extends Seeder
                     'key'         => 'id',
                     'label'       => 'name',
                 ]
+            ])->save();
+        }
+
+        $dataRow = $this->dataRow($dataType, 'total');
+        if (!$dataRow->exists) {
+            $dataRow->fill([
+                'type'         => 'number',
+                'display_name' => 'Total',
+                'required'     => 1,
+                'browse'       => 1,
+                'read'         => 1,
+                'edit'         => 1,
+                'add'          => 1,
+                'delete'       => 1,
+                'order'        => $count++,
             ])->save();
         }
 

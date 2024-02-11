@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +20,9 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
     Route::get("api/products", [ProductController::class, "getProducts"]);
+    Route::get("api/clients", [ClientController::class, "getClients"]);
+});
+
+Route::get("/",function(){
+    return redirect("/admin");
 });
